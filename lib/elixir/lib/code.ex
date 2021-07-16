@@ -415,12 +415,20 @@ defmodule Code do
       {kind, _, '..' ++ _, acc} -> alias_or_local_or_var(kind, acc)
       # Module attributes
       {:alias, _, '@' ++ _, _} -> :none
-      {:identifier, _, '@' ++ _, acc} -> {:module_attribute, acc}
+      {:identifier, _, '@' ++ rest, acc} -> module_attribute_or_atom(acc, rest)
       # Everything else
       {:alias, _, '.' ++ rest, acc} -> nested_alias(rest, acc)
       {:identifier, _, '.' ++ rest, acc} -> dot(rest, acc)
       {kind, _, _, acc} -> alias_or_local_or_var(kind, acc)
       :none -> :none
+    end
+  end
+
+  defp module_attribute_or_atom(acc, rest) do
+    case Enum.reverse(rest) do
+      '' -> {:module_attribute, acc}
+      ':' ++ atom -> {:unquoted_atom, atom ++ '@' ++ acc}
+      _ -> :none
     end
   end
 
