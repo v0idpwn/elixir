@@ -307,23 +307,37 @@ defmodule IEx.Autocomplete do
   end
 
   ## Structs
-
   defp expand_structs(hint, shell) do
     aliases =
       for {alias, mod} <- aliases_from_env(shell),
           [name] = Module.split(alias),
-          String.starts_with?(name, hint),
-          struct?(mod) and not function_exported?(mod, :exception, 1),
-          do: %{kind: :struct, name: name}
+          String.starts_with?(name, hint) do
+        {name, mod}
+      end
 
     modules =
       for "Elixir." <> name = full_name <- match_modules("Elixir." <> hint, true),
-          String.starts_with?(name, hint),
-          mod = String.to_atom(full_name),
-          struct?(mod) and not function_exported?(mod, :exception, 1),
-          do: %{kind: :struct, name: name}
+          String.starts_with?(name, hint) do
+        {name, String.to_atom(full_name)}
+      end
 
-    format_expansion(aliases ++ modules, hint)
+    all_mods = aliases ++ modules
+
+    # Attempt to load all modules concurrently in advance, so that when we map
+    # over them, we don't need to load
+    all_mods
+    |> Enum.map(&elem(&1, 1))
+    |> Code.ensure_all_loaded()
+
+    all_mods
+    |> Enum.flat_map(fn {name, mod} ->
+      if struct?(mod) and not function_exported?(mod, :exception, 1) do
+        [%{kind: :struct, name: name}]
+      else
+        []
+      end
+    end)
+    |> format_expansion(hint)
   end
 
   defp struct?(mod) do
