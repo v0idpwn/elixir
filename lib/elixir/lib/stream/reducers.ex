@@ -74,6 +74,10 @@ defmodule Stream.Reducers do
     try do
       do_zip_next(zips, acc, callback, [], [], zip_fun)
     catch
+      # If using the struct directly, can't bootstrap the compiler. Why?
+      :error, %{__struct__: ArgumentError, message: "cannot cycle over an empty enumerable"} ->
+        {:done, []}
+
       kind, reason ->
         do_zip_close(zips)
         :erlang.raise(kind, reason, __STACKTRACE__)

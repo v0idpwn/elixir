@@ -1519,6 +1519,9 @@ defmodule EnumTest do
     assert Enum.zip([], [1]) == []
     assert Enum.zip([1], []) == []
     assert Enum.zip([], []) == []
+
+    assert Enum.zip([], Stream.cycle([1, 2])) == []
+    assert Enum.zip([], Stream.cycle(1..2)) == []
   end
 
   test "zip/1" do
@@ -1541,6 +1544,8 @@ defmodule EnumTest do
 
     assert Enum.zip([[], [], [], []]) == []
     assert Enum.zip(%{}) == []
+
+    assert Enum.zip([[], Stream.cycle(1..2), [4, 5], Stream.cycle(0..10)]) == []
   end
 
   test "zip_with/3" do
