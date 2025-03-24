@@ -134,11 +134,7 @@ defmodule Mix.Tasks.Deps.Loadpaths do
   defp partition([dep | deps], not_ok, compile) do
     cond do
       Mix.Dep.compilable?(dep) or (Mix.Dep.ok?(dep) and local?(dep)) ->
-        if from_umbrella?(dep) do
-          partition(deps, not_ok, compile)
-        else
-          partition(deps, not_ok, [dep | compile])
-        end
+        partition(deps, not_ok, [dep | compile])
 
       Mix.Dep.ok?(dep) ->
         partition(deps, not_ok, compile)
@@ -156,11 +152,6 @@ defmodule Mix.Tasks.Deps.Loadpaths do
     deps
     |> Enum.map(& &1.app)
     |> Mix.Dep.filter_by_name(Mix.Dep.load_and_cache())
-  end
-
-  # Those are compiled by umbrella.
-  defp from_umbrella?(dep) do
-    dep.opts[:from_umbrella]
   end
 
   # Every local dependency (i.e. that are not fetchable)
