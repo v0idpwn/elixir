@@ -1570,7 +1570,8 @@ defmodule KernelTest do
       assert to_timeout(Duration.new!(hour: 2)) == 1000 * 60 * 60 * 2
       assert to_timeout(Duration.new!(minute: 74)) == 1000 * 60 * 74
       assert to_timeout(Duration.new!(second: 1293)) == 1_293_000
-      assert to_timeout(Duration.new!(microsecond: {1_234_123, 4})) == 1_234
+      assert to_timeout(Duration.new!(microsecond: {1_234_123, 6})) == 1_234
+      assert to_timeout(Duration.new!(microsecond: {12, 2})) == 120
 
       assert to_timeout(Duration.new!(hour: 2, minute: 30)) == 1000 * 60 * 60 * 2 + 1000 * 60 * 30
       assert to_timeout(Duration.new!(minute: 30, hour: 2)) == 1000 * 60 * 60 * 2 + 1000 * 60 * 30

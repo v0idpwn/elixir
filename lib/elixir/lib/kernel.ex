@@ -6321,7 +6321,8 @@ defmodule Kernel do
               "duration with a non-zero month cannot be reliably converted to timeouts"
 
       _other ->
-        {microsecond, _precision} = duration.microsecond
+        {value, precision} = duration.microsecond
+        microsecond = value * Integer.pow(10, 6 - precision)
         millisecond = :erlang.convert_time_unit(microsecond, :microsecond, :millisecond)
 
         duration.week * unquote(week_in_ms) +
